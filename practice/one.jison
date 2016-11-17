@@ -22,7 +22,7 @@ startingExpr
 
 Expression
 	: Expression '+' VAR
-		{$$ = +$1 + +$3;}
+		{$$ = $1 + $3;}
 	| Expression '-' VAR
 		{$$ = $1-$3;}
 	| Expression '/' VAR
@@ -34,4 +34,5 @@ Expression
 
 VAR  
 	: NUMBER
+		{$$ = +yytext}
 	;
