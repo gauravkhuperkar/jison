@@ -19,19 +19,23 @@
 	var ParseTree = require('./numericExprLib.js');
 	var converter = require('number-to-words');
 	var variableStroage = {};
-	var result = 0;
+	var result;
 %}
 
 %start startingExpr
 %left '=' 'SEMI_COL' 'NEW_LINE'
 %left '+' '-'
 %left '*' '/'
+%left '^'
 %left UMINUS
 %%
 
 startingExpr
 	: Expr
-		{console.log("Answer is...... ",result)}
+		{
+			var stringFormate = result.toString() 
+			console.log("The expression is :", stringFormate," And the answer is : ",result.evaluate(result))
+		}
 	;
 
 Expr
@@ -49,23 +53,13 @@ Term
 	: '(' Term ')'
 	 	{ $$ = $2 }
 	| Term '+' Term
-		{ 	var firstNumber = isNaN($1) ? variableStroage[$1] : $1;
-			var secondNumber = isNaN($3) ? variableStroage[$3] : $3;
-			$$ = Number(firstNumber)+Number(secondNumber);
-			result = $$;
-		} 
+		{ $$ = new ParseTree("+",$1,$3, variableStroage); result = $$;} 
 	| Term '-' Term
-		{ 	var firstNumber = isNaN($1) ? variableStroage[$1] : $1;
-			var secondNumber = isNaN($3) ? variableStroage[$3] : $3;
-			$$ = Number(firstNumber)-Number(secondNumber);
-			result = $$;
-		} 	
+		{ $$ = new ParseTree("-",$1,$3, variableStroage); result = $$;} 	
 	| Term '*' Term
-		{	var firstNumber = isNaN($1) ? variableStroage[$1] : $1;
-			var secondNumber = isNaN($3) ? variableStroage[$3] : $3;
-			$$ = Number(firstNumber)*Number(secondNumber);
-			result = $$;
-		}
+		{ $$ = new ParseTree("*",$1,$3, variableStroage); result = $$;}
+	| Term '^' Term
+	    { $$ = new ParseTree("^",$1,$3, variableStroage); result = $$;}
  	| NUM
  	| VARIABLE '=' NUM
  		{ variableStroage[$1] = $3; }
