@@ -7,6 +7,8 @@
 "+"				{ return '+'; }
 "-"				{ return '-'; }
 "*"				{ return '*'; }
+"/"				{ return '/'; }
+"^"				{ return '^'; }
 "="				{ return '='; }
 "("     		{ return '('; }
 ")"     		{ return ')'; }
@@ -33,8 +35,9 @@
 startingExpr
 	: Expr
 		{
-			var stringFormate = result.toString() 
-			console.log("The expression is :", stringFormate," And the answer is : ",result.evaluate(result))
+			var cloner = require('js-cloner');
+			var resultClone = cloner.clone(result);
+			console.log("The expression is:", result.toString()," values of variables:",variableStroage," And the answer is:",result.evaluate(resultClone))
 		}
 	;
 
@@ -46,7 +49,6 @@ Expr
 Statement
  	: Statement SEMI_COL
  	| Term
- 	| NEW_LINE
  	;
  	
 Term
@@ -58,11 +60,14 @@ Term
 		{ $$ = new ParseTree("-",$1,$3, variableStroage); result = $$;} 	
 	| Term '*' Term
 		{ $$ = new ParseTree("*",$1,$3, variableStroage); result = $$;}
+	| Term '/' Term
+		{ $$ = new ParseTree("/",$1,$3, variableStroage); result = $$;}	
 	| Term '^' Term
 	    { $$ = new ParseTree("^",$1,$3, variableStroage); result = $$;}
- 	| NUM
  	| VARIABLE '=' NUM
  		{ variableStroage[$1] = $3; }
+ 	| NUM
+ 		{$$ = Number(yytext);}
  	| VARIABLE
  	| SEMI_COL Term
 	;
