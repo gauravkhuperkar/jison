@@ -3,7 +3,8 @@ var calculate = function(operator, left, right) {
 		"+" : function(left, right) { return left.evaluate() + right.evaluate() },
 		"-" : function(left, right) { return left.evaluate() - right.evaluate() },
 		"*" : function(left, right) { return left.evaluate() * right.evaluate() },
-		"/" : function(left, right) { return left.evaluate() / right.evaluate() }
+		"/" : function(left, right) { return left.evaluate() / right.evaluate() },
+		"^" : function(left, right) { return  Math.pow(left.evaluate(), right.evaluate())}
 	}
 	return operators[operator](left,right);
 }
@@ -27,8 +28,9 @@ nodes.OperatorNode = function(name, left, right) {
 nodes.OperatorNode.prototype.evaluate = function() { return calculate(this.name,this.left,this.right) }
 //-------------------------------------------------------------------------------------------------------
 
-nodes.VariableNode = function(name) {
+nodes.VariableNode = function(name, value) {
 	this.name = name;
+	this.value = value;
 };
 
 nodes.VariableNode.prototype.evaluate = function() { return Number(2) }
@@ -40,7 +42,7 @@ nodes.AssignmentNode = function(name, left, right) {
 	this.right = right;
 };
 
-nodes.AssignmentNode.prototype.evaluate = function() { this.left = this.right.evaluate() }
+nodes.AssignmentNode.prototype.evaluate = function() { this.left.value = this.right.evaluate(); return this.right.evaluate() }
 //-------------------------------------------------------------------------------------------------------
 
 module.exports = nodes;

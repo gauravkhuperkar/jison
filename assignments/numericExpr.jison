@@ -20,7 +20,6 @@
 /lex
 
 %{
-	var ParseTree = require('./ParseTree.js');
 	var converter = require('number-to-words');
 	var lib = require('./treeNodes.js');
 	var variableStroage = {};
@@ -41,7 +40,7 @@ startingExpr
 		{ 
 			var cloner = require('js-cloner');
 			var resultClone = cloner.clone(result);
-			console.log("Expression is:", result," values of variables:",variableStroage," And the answer is:",result.evaluate(resultClone));
+			console.log("Expression is:\n", result," \n\nAnd the answer is:",result.evaluate(resultClone));
 		}
 	;
 
@@ -54,33 +53,17 @@ file
  	
 expression
 	: '(' expression ')'
-	 	{ $$ = $2;}
+	 	{ $$ = $2; }
 	| expression '+' expression
-		{ 
-			var operatorNode = new lib.OperatorNode('+',$1,$3)
-			$$ = new ParseTree(operatorNode,$1,$3, variableStroage);
-			result = $$;
-		}
+		{ $$ = new lib.OperatorNode('+',$1,$3);result = $$; }
 	| expression '-' expression
-		{ 
-			var operatorNode = new lib.OperatorNode('-',$1,$3)
-			$$ = new ParseTree(operatorNode,$1,$3, variableStroage);
-			result = $$;
-		}
+		{ $$ = new lib.OperatorNode('-',$1,$3);result = $$; }
 	| expression '*' expression
-		{ 
-			var operatorNode = new lib.OperatorNode('*',$1,$3)
-			$$ = new ParseTree(operatorNode,$1,$3, variableStroage);
-			result = $$;
-		}
+		{ $$ = new lib.OperatorNode('*',$1,$3);result = $$; }
 	| expression '/' expression
-		{ 			
-			var operatorNode = new lib.OperatorNode('/',$1,$3)
-			$$ = new ParseTree(operatorNode,$1,$3, variableStroage);
-			result = $$;
-		}
+		{ $$ = new lib.OperatorNode('/',$1,$3);result = $$; }
 	| expression '^' expression
-		{$$ = new ParseTree($2,$1,$3, variableStroage); result = $$;}
+		{ $$ = new lib.OperatorNode('/',$1,$3);result = $$; }
 	| expression '!'
  	| 'NUMBER'
  		{$$ = new lib.NumberNode(yytext);}
@@ -90,5 +73,5 @@ expression
 
 assignment
   	: 'VARIABLE' '=' expression
-  		{$$ = new lib.AssignmentNode($2,$1,$3);}
+  		{ $$ = new lib.AssignmentNode($2,$1,$3);result = $$; }
   	;
