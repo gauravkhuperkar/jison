@@ -1,9 +1,8 @@
 %lex
 %%
 
-\n 				{ return 'NEW_LINE'; }
 \s+				{ /* skip */ }
-[0-9]+			{ return 'NUM'; }
+[0-9]+			{ return 'NUMBER'; }
 "+"				{ return '+'; }
 "-"				{ return '-'; }
 "*"				{ return '*'; }
@@ -12,62 +11,84 @@
 "="				{ return '='; }
 "("     		{ return '('; }
 ")"     		{ return ')'; }
+"!"             { return '!'; }
+';'				{ return ';'; }
 [a-zA-Z0-9]+	{ return 'VARIABLE'; }
-';'				{ return 'SEMI_COL'}
+<<EOF>>         { return 'EOF' }
+
 
 /lex
 
 %{
-	var ParseTree = require('./numericExprLib.js');
+	var ParseTree = require('./ParseTree.js');
 	var converter = require('number-to-words');
+	var lib = require('./treeNodes.js');
 	var variableStroage = {};
 	var result;
 %}
 
 %start startingExpr
-%left '=' 'SEMI_COL' 'NEW_LINE'
+
 %left '+' '-'
 %left '*' '/'
 %left '^'
+%left '!'
 %left UMINUS
 %%
 
 startingExpr
-	: Expr
-		{
+	: file EOF
+		{ 
 			var cloner = require('js-cloner');
 			var resultClone = cloner.clone(result);
-			console.log("The expression is:", result.toString()," values of variables:",variableStroage," And the answer is:",result.evaluate(resultClone))
+			console.log("Expression is:", result," values of variables:",variableStroage," And the answer is:",result.evaluate(resultClone));
 		}
 	;
 
-Expr
-	: Expr NEW_LINE Expr
-	| Statement
-	;
-		
-Statement
- 	: Statement SEMI_COL
- 	| Term
- 	;
+file
+	: expression ';'
+	| assignment ';'
+	| expression ';' file
+  	| assignment ';' file
+  	;
  	
-Term
-	: '(' Term ')'
-	 	{ $$ = $2 }
-	| Term '+' Term
-		{ $$ = new ParseTree("+",$1,$3, variableStroage); result = $$;} 
-	| Term '-' Term
-		{ $$ = new ParseTree("-",$1,$3, variableStroage); result = $$;} 	
-	| Term '*' Term
-		{ $$ = new ParseTree("*",$1,$3, variableStroage); result = $$;}
-	| Term '/' Term
-		{ $$ = new ParseTree("/",$1,$3, variableStroage); result = $$;}	
-	| Term '^' Term
-	    { $$ = new ParseTree("^",$1,$3, variableStroage); result = $$;}
- 	| VARIABLE '=' NUM
- 		{ variableStroage[$1] = $3; }
- 	| NUM
- 		{$$ = Number(yytext);}
- 	| VARIABLE
- 	| SEMI_COL Term
+expression
+	: '(' expression ')'
+	 	{ $$ = $2;}
+	| expression '+' expression
+		{ 
+			var operatorNode = new lib.OperatorNode('+',$1,$3)
+			$$ = new ParseTree(operatorNode,$1,$3, variableStroage);
+			result = $$;
+		}
+	| expression '-' expression
+		{ 
+			var operatorNode = new lib.OperatorNode('-',$1,$3)
+			$$ = new ParseTree(operatorNode,$1,$3, variableStroage);
+			result = $$;
+		}
+	| expression '*' expression
+		{ 
+			var operatorNode = new lib.OperatorNode('*',$1,$3)
+			$$ = new ParseTree(operatorNode,$1,$3, variableStroage);
+			result = $$;
+		}
+	| expression '/' expression
+		{ 			
+			var operatorNode = new lib.OperatorNode('/',$1,$3)
+			$$ = new ParseTree(operatorNode,$1,$3, variableStroage);
+			result = $$;
+		}
+	| expression '^' expression
+		{$$ = new ParseTree($2,$1,$3, variableStroage); result = $$;}
+	| expression '!'
+ 	| 'NUMBER'
+ 		{$$ = new lib.NumberNode(yytext);}
+ 	| 'VARIABLE'
+ 		{$$ = new lib.VariableNode(yytext);}
 	;
+
+assignment
+  	: 'VARIABLE' '=' expression
+  		{$$ = new lib.AssignmentNode($2,$1,$3);}
+  	;
