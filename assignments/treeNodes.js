@@ -27,7 +27,7 @@ nodes.OperatorNode = function(name, left, right) {
 nodes.OperatorNode.prototype.evaluate = function() { return calculate(this.name,this.left,this.right) }
 //-------------------------------------------------------------------------------------------------------
 
-nodes.VariableNode = function(name, value) {
+nodes.VariableNode = function(name) {
 	this.name = name;
 };
 
