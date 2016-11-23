@@ -17,6 +17,7 @@ nodes.NumberNode = function(name) {
 };
 
 nodes.NumberNode.prototype.evaluate = function() { return Number(this.name) }
+nodes.NumberNode.prototype.convertToJs = function() { return this.name }
 //-------------------------------------------------------------------------------------------------------
 
 nodes.OperatorNode = function(name, left, right) {
@@ -26,14 +27,16 @@ nodes.OperatorNode = function(name, left, right) {
 };
 
 nodes.OperatorNode.prototype.evaluate = function() { return calculate(this.name,this.left,this.right) }
+nodes.OperatorNode.prototype.convertToJs = function() { return "console.log("+this.left.convertToJs()+this.name+this.right.convertToJs()+")" }
 //-------------------------------------------------------------------------------------------------------
 
-nodes.VariableNode = function(name, value) {
+nodes.VariableNode = function(name, variables) {
 	this.name = name;
-	this.value = value;
+	this.variables = variables;
 };
 
-nodes.VariableNode.prototype.evaluate = function() { return Number(2) }
+nodes.VariableNode.prototype.evaluate = function() { return this.variables[this.name].evaluate() }
+nodes.VariableNode.prototype.convertToJs = function() { return this.name; }
 //-------------------------------------------------------------------------------------------------------
 
 nodes.AssignmentNode = function(name, left, right) {
@@ -42,7 +45,8 @@ nodes.AssignmentNode = function(name, left, right) {
 	this.right = right;
 };
 
-nodes.AssignmentNode.prototype.evaluate = function() { this.left.value = this.right.evaluate(); return this.right.evaluate() }
+nodes.AssignmentNode.prototype.evaluate = function() { return this.right.evaluate() }
+nodes.AssignmentNode.prototype.convertToJs = function() { return "var "+this.left.convertToJs()+this.name+this.right.convertToJs()+";" }
 //-------------------------------------------------------------------------------------------------------
 
 module.exports = nodes;
