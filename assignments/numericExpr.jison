@@ -22,7 +22,6 @@
 %{
 	var lib = require(process.cwd()+'/treeNodes.js');
 	var variableStroage = {};
-	var result;
 %}
 
 %start startingExpr
@@ -37,29 +36,31 @@
 
 startingExpr
 	: file EOF
-		{ return result;}
+		{ return $$; }
 	;
 
 file
 	: expression ';'
 	| assignment ';'
 	| expression ';' file
+		{ $$ = new lib.Structure($1,$2,$3); }
   	| assignment ';' file
+		{ $$ = new lib.Structure($1,$2,$3); }
   	;
  	
 expression
 	: '(' expression ')'
 	 	{ $$ = $2; }
 	| expression '+' expression
-		{ $$ = new lib.OperatorNode('+',$1,$3);result = $$; }
+		{ $$ = new lib.OperatorNode('+',$1,$3); }
 	| expression '-' expression
-		{ $$ = new lib.OperatorNode('-',$1,$3);result = $$; }
+		{ $$ = new lib.OperatorNode('-',$1,$3); }
 	| expression '*' expression
-		{ $$ = new lib.OperatorNode('*',$1,$3);result = $$; }
+		{ $$ = new lib.OperatorNode('*',$1,$3); }
 	| expression '/' expression
-		{ $$ = new lib.OperatorNode('/',$1,$3);result = $$; }
+		{ $$ = new lib.OperatorNode('/',$1,$3); }
 	| expression '^' expression
-		{ $$ = new lib.OperatorNode('/',$1,$3);result = $$; }
+		{ $$ = new lib.OperatorNode('/',$1,$3); }
 	| expression '!'
  	| 'NUMBER'
  		{$$ = new lib.NumberNode(yytext);}
@@ -69,5 +70,8 @@ expression
 
 assignment
   	: 'VARIABLE' '=' expression
-  		{variableStroage[$1] = $3; $$ = new lib.AssignmentNode($2,$1,$3);result = $$; }
+  		{	variableStroage[$1] = $3; 
+			var variable = new lib.VariableNode($1,variableStroage)
+  			$$ = new lib.AssignmentNode($2,variable,$3);
+  		}
   	;
