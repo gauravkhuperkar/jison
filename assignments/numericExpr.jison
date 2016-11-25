@@ -26,7 +26,13 @@
 /lex
 
 %{
-	var lib = require(process.cwd()+'/treeNodes.js');
+	var IfBlock = require(process.cwd()+'/lib/IfBlock.js');
+	var IfElseBlock = require(process.cwd()+'/lib/IfElseBlock.js');
+	var NumberNode = require(process.cwd()+'/lib/NumberNode.js');
+	var OperatorNode = require(process.cwd()+'/lib/OperatorNode.js');
+	var StructureTree = require(process.cwd()+'/lib/StructureTree.js');
+	var VariableNode = require(process.cwd()+'/lib/VariableNode.js');
+	var AssignmentNode = require(process.cwd()+'/lib/AssignmentNode.js');
 	var variableStroage = {};
 %}
 
@@ -49,45 +55,45 @@ programme
 	: expression ';'
 	| assignment ';'
 	| expression ';' programme
-		{ $$ = new lib.Structure($1,$2,$3); }
+		{ $$ = new StructureTree($1,$2,$3); }
   	| assignment ';' programme
-		{ $$ = new lib.Structure($1,$2,$3); }
+		{ $$ = new StructureTree($1,$2,$3); }
 	| decisionMaking ';'
 	| decisionMaking ';' programme
-		{ $$ =  new lib.Structure($1,$2,$3); }
+		{ $$ =  new StructureTree($1,$2,$3); }
   	;
  	
 decisionMaking
   	: 'IF' 'BOOLEAN' '{' programme '}'
-		{ $$ = new lib.IfBlock($2, $4); }
+		{ $$ = new IfBlock($2, $4); }
   	| 'IF' 'BOOLEAN' '{' programme '}' 'ELSE' '{' programme '}'
-  		{ $$ = new lib.IfElseBlock($2,$4, $8); }
+  		{ $$ = new IfElseBlock($2,$4, $8); }
   	;
 
 expression
 	: '(' expression ')'
 	 	{ $$ = $2; }
 	| expression '+' expression
-		{ $$ = new lib.OperatorNode('+',$1,$3); }
+		{ $$ = new OperatorNode('+',$1,$3); }
 	| expression '-' expression
-		{ $$ = new lib.OperatorNode('-',$1,$3); }
+		{ $$ = new OperatorNode('-',$1,$3); }
 	| expression '*' expression
-		{ $$ = new lib.OperatorNode('*',$1,$3); }
+		{ $$ = new OperatorNode('*',$1,$3); }
 	| expression '/' expression
-		{ $$ = new lib.OperatorNode('/',$1,$3); }
+		{ $$ = new OperatorNode('/',$1,$3); }
 	| expression '^' expression
-		{ $$ = new lib.OperatorNode('/',$1,$3); }
+		{ $$ = new OperatorNode('/',$1,$3); }
 	| expression '!'
  	| 'NUMBER'
- 		{$$ = new lib.NumberNode(yytext);}
+ 		{$$ = new NumberNode(yytext);}
  	| 'VARIABLE'
- 		{$$ = new lib.VariableNode(yytext,variableStroage);}
+ 		{$$ = new VariableNode(yytext,variableStroage);}
 	;
 
 assignment
   	: 'VARIABLE' '=' expression
   		{	variableStroage[$1] = $3; 
-			var variable = new lib.VariableNode($1,variableStroage)
-  			$$ = new lib.AssignmentNode($2,variable,$3);
+			var variable = new VariableNode($1,variableStroage)
+  			$$ = new AssignmentNode($2,variable,$3);
   		}
   	;

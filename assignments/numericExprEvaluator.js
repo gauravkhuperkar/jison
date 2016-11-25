@@ -49,7 +49,8 @@ var optionsRepl = function() {
 		"echo" : tree.toString(),
 		"toWords" : tree.toWords()
 	}
-	console.log(options[option]);
+	var msgLine = "\n***---------- Total result according to option "+option+" is -----------***\n"
+	console.log(msgLine,options[option]);
 }
 var exit = function () {
 	optionsRepl(option)
