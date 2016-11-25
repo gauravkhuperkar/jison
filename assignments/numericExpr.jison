@@ -12,7 +12,13 @@
 "("     		{ return '('; }
 ")"     		{ return ')'; }
 "!"             { return '!'; }
-';'				{ return ';'; }
+";"				{ return ';'; }
+"{"				{ return '{'; }
+"}"				{ return '}'; }
+"if"			{ return 'IF'; }
+"else"			{ return 'ELSE'; }
+"true"			{ return 'BOOLEAN'; }
+"false"			{ return 'BOOLEAN'; }
 [a-zA-Z0-9]+	{ return 'VARIABLE'; }
 <<EOF>>         { return 'EOF' }
 
@@ -35,19 +41,29 @@
 %%
 
 startingExpr
-	: file EOF
+	: programme EOF
 		{ return $$; }
 	;
 
-file
+programme
 	: expression ';'
 	| assignment ';'
-	| expression ';' file
+	| expression ';' programme
 		{ $$ = new lib.Structure($1,$2,$3); }
-  	| assignment ';' file
+  	| assignment ';' programme
 		{ $$ = new lib.Structure($1,$2,$3); }
+	| decisionMaking ';'
+	| decisionMaking ';' programme
+		{ $$ =  new lib.Structure($1,$2,$3); }
   	;
  	
+decisionMaking
+  	: 'IF' 'BOOLEAN' '{' programme '}'
+		{ $$ = new lib.IfBlock($2, $4); }
+  	| 'IF' 'BOOLEAN' '{' programme '}' 'ELSE' '{' programme '}'
+  		{ $$ = new lib.IfElseBlock($2,$4, $8); }
+  	;
+
 expression
 	: '(' expression ')'
 	 	{ $$ = $2; }

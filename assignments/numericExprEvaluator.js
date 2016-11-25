@@ -2,7 +2,7 @@ var jison = require("jison");
 var fs = require('fs');
 var lexer = fs.readFileSync('numericExpr.jison', 'utf8');
 var parser = new jison.Parser(lexer);
-var tree = parser.parse("x;");
+var tree = parser.parse("x=10;y=3;x+y;");
 
 var showErrMsg = function() {
 	var msg = ["Please provide option \n",
@@ -26,13 +26,15 @@ options = {
 	"toWords" : tree.toWords()
 }
 
+// console.log((options[option]) ? (options[option]) : showErrMsg())
+
 if (repl=="repl") {
 	process.stdin.setEncoding('utf8');
 	process.stdin.on('data', function (text) {
 	    if (text === 'quit\n')
 	    	exit();
 	    var tree = parser.parse(text);
-	    console.log(">"+tree.evaluate());
+	    console.log("> "+tree.evaluate());
 		expression+=text;
 	});
 } else {

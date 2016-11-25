@@ -83,13 +83,40 @@ nodes.Structure = function(previousExp,spliter,nextExp) {
 	this.previousExp = previousExp;
 	this.spliter = spliter;
 	this.nextExp = nextExp;
-}
+};
 	
 nodes.Structure.prototype = {
 	evaluate : function() { return this.nextExp.evaluate() },
 	convertToJs : function() { return this.previousExp.convertToJs()+this.nextExp.convertToJs(); },
 	toString : function() { return ""+this.previousExp.toString()+this.nextExp.toString(); },
 	toWords : function() { return ""+this.previousExp.toWords()+this.nextExp.toWords(); }
+};
+//-------------------------------------------------------------------------------------------------------
+
+nodes.IfBlock = function(condition, expressionTree) {
+	this.condition = condition;
+	this.expressionTree = expressionTree;
+};
+
+nodes.IfBlock.prototype = {
+	evaluate : function() { return eval(this.condition) ? this.expressionTree.evaluate() : undefined },
+	convertToJs : function() { return "if ("+this.condition+")\n{\n"+this.expressionTree.convertToJs()+"\n};"},
+	toString : function() { return "if "+this.condition+" {\n"+this.expressionTree.toString()+"\n};"},
+	toWords : function() { return "if condtion is "+this.condition+" then -->\n"+this.expressionTree.toWords()+"\n};"},
+};
+//-------------------------------------------------------------------------------------------------------
+
+nodes.IfElseBlock = function(condition, truthyExpr, falsyExpr) {
+	this.condition = condition;
+	this.truthyExpr = truthyExpr;
+	this.falsyExpr = falsyExpr;
+};
+
+nodes.IfElseBlock.prototype = {
+	evaluate : function() { return eval(this.condition) ? this.truthyExpr.evaluate() : this.falsyExpr.evaluate() },
+	convertToJs : function() { return "if ("+this.condition+")\n{\n"+this.truthyExpr.convertToJs()+"\n} else {\nmy expression };\n"},
+	toString : function() { return "if "+this.condition+"{\n"+this.truthyExpr.toString()+"\n} else {\nmy expression };\n"},
+	toWords : function() { return "if condition is "+this.condition+"then  -> "+this.truthyExpr.toWords()+" othrewise expands -->"+this.falsyExpr.toWords()},
 };
 //-------------------------------------------------------------------------------------------------------
 
