@@ -9,51 +9,23 @@ var showErrMsg = function() {
 				"Available options are :",
 				"> evaluate","> echo",
 				"> js","> toWords",
-				"> repl (as 2nd option to run in repl mode)",
-				"<<-- Note : Type quit to get out of repl -->>"
+				"> repl",
+				"\n<<-- Note : Type quit to get out of repl -->>"
 			]
 	return msg.join("\n");
 }
 
 var option = process.argv[2];
-var repl = process.argv[3];
-var expression = "";
+var _2ndoption = process.argv[3];
 
-options = { 
-	"evaluate" : tree.evaluate(),
-	"js" : tree.convertToJs(),
-	"echo" : tree.toString(),
-	"toWords" : tree.toWords()
-}
+var repl = require('./repl.js');
 
-// console.log((options[option]) ? (options[option]) : showErrMsg())
-
-if (repl=="repl") {
-	process.stdin.setEncoding('utf8');
-	process.stdin.on('data', function (text) {
-	    if (text === 'quit\n')
-	    	exit();
-	    var tree = parser.parse(text);
-	    console.log("> "+tree.evaluate());
-		expression+=text;
-	});
-} else {
-	console.log((options[option]) ? (options[option]) : showErrMsg())
+var options = { 
+	"evaluate" : function() { return tree.evaluate(); },
+	"js" : function() { return tree.convertToJs(); },
+	"echo" : function() { return tree.toString; },
+	"toWords" : function() { return tree.toWords; },
+	"repl" : function() { return repl(_2ndoption); }
 }
-
-var optionsRepl = function() {
-	var tree = parser.parse(expression);
-	var options = {
-		"evaluate" : tree.evaluate(),
-		"js" : tree.convertToJs(),
-		"echo" : tree.toString(),
-		"toWords" : tree.toWords()
-	}
-	var msgLine = "\n***---------- Total result according to option "+option+" is -----------***\n"
-	console.log(msgLine,options[option]);
-}
-var exit = function () {
-	optionsRepl(option)
-    process.exit();
-}
+console.log((options[option]) ? options[option]() : showErrMsg())
 
