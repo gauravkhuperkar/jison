@@ -84,6 +84,7 @@ expression
 	| expression '^' expression
 		{ $$ = new OperatorNode('/',$1,$3); }
 	| expression '!'
+		{ $$ = new FactorialNode($2,$1); }
  	| 'NUMBER'
  		{$$ = new NumberNode(yytext);}
  	| 'VARIABLE'
